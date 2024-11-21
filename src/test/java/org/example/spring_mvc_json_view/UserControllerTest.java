@@ -41,8 +41,8 @@ public class UserControllerTest {
         objectMapper = new ObjectMapper();
         user = new User();
         user.setId(1L);
-        user.setName("John Doe");
-        user.setEmail("john.doe@example.com");
+        user.setName("Ivanov Ivan");
+        user.setEmail("ivan.ivanov@example.com");
     }
 
     @Test
@@ -51,7 +51,7 @@ public class UserControllerTest {
 
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("John Doe"));
+                .andExpect(jsonPath("$[0].name").value("Ivanov Ivan"));
 
         verify(userService, times(1)).getAllUsers();
     }
@@ -62,14 +62,15 @@ public class UserControllerTest {
 
         mockMvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("John Doe"));
+                .andExpect(jsonPath("$.name").value("Ivanov Ivan"));
 
         verify(userService, times(1)).getUserById(1L);
     }
 
     @Test
     public void testGetUserById_UserNotFound() throws Exception {
-        when(userService.getUserById(1L)).thenThrow(new EntityNotFoundException("User with id 1 not found"));
+        when(userService.getUserById(1L))
+                .thenThrow(new EntityNotFoundException("User with id 1 not found"));
 
         mockMvc.perform(get("/users/1"))
                 .andExpect(status().isNotFound());
@@ -85,7 +86,7 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("John Doe"));
+                .andExpect(jsonPath("$.name").value("Ivanov Ivan"));
 
         verify(userService, times(1)).createUser(any(User.class));
     }
@@ -98,14 +99,15 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("John Doe"));
+                .andExpect(jsonPath("$.name").value("Ivanov Ivan"));
 
         verify(userService, times(1)).updateUser(eq(1L), any(User.class));
     }
 
     @Test
     public void testUpdateUser_UserNotFound() throws Exception {
-        when(userService.updateUser(eq(1L), any(User.class))).thenThrow(new EntityNotFoundException("User with id 1 not found"));
+        when(userService.updateUser(eq(1L),
+                any(User.class))).thenThrow(new EntityNotFoundException("User with id 1 not found"));
 
         mockMvc.perform(put("/users/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -127,7 +129,8 @@ public class UserControllerTest {
 
     @Test
     public void testDeleteUser_UserNotFound() throws Exception {
-        doThrow(new EntityNotFoundException("User with id 1 not found")).when(userService).deleteUser(1L);
+        doThrow(new EntityNotFoundException("User with id 1 not found"))
+                .when(userService).deleteUser(1L);
 
         mockMvc.perform(delete("/users/1"))
                 .andExpect(status().isNotFound());
